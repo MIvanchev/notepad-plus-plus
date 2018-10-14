@@ -5,16 +5,15 @@ image: Visual Studio 2015
 clone_depth: 1
 
 platform:
-    - x64
-    - Win32
+    - ARM
 
 configuration:
-    - Unicode Release
     - Unicode Debug
 
 install:
     - if "%platform%"=="x64" set archi=amd64
     - if "%platform%"=="Win32" set archi=x86
+    - if "%platform%"=="ARM" set archi=x86_arm
     - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
 
 build:
@@ -47,6 +46,10 @@ after_build:
 
         if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Unicode Debug") {
             Push-AppveyorArtifact "PowerEditor\visual.net\Unicode Debug\Notepad++.exe" -FileName "$nppFileName"
+        }
+
+        if ($env:PLATFORM -eq "ARM" -and $env:CONFIGURATION -eq "Unicode Debug") {
+            Push-AppveyorArtifact "PowerEditor\visual.net\arm\Unicode Debug\Notepad++.exe" -FileName "$nppFileName"
         }
 
         Push-AppveyorArtifact "scintilla\bin\SciLexer.dll" -FileName "SciLexer.$env:PLATFORM.$env:CONFIGURATION.dll"

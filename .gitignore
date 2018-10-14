@@ -11,6 +11,7 @@
 [Rr]elease/
 x64/
 x86/
+arm/
 #[Bb]in/
 [Oo]bj/
 *.pdb
