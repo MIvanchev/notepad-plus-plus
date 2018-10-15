@@ -30,7 +30,7 @@ install:
     - if %NoCache% equ 1 Start-FileDownload "%BoostUrl% -FileName "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 7z x -oc:\projects\deps "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 del "%TEMP%\%BoostArchive%"
-\   - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
+    - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
     - if %NoCache% equ 1 bootstrap
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=arm
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86
