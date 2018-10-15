@@ -36,6 +36,8 @@ install:
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86 address-model=32
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86 address-model=64
     - if %NoCache% equ 1 (cd bin.v2 && del /S *.obj *.rsp)
+    - echo BOOSTPATH=c:\projects\deps\%BoostBase% > c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
+    - echo BOOSTLIBPATH=c:\projects\deps\%BoostBase%\bin.v2\libs\regex\build\msvc-14.0 >> c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
     - if "%platform%"=="x64" set archi=amd64
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="ARM" set archi=x86_arm
@@ -50,7 +52,10 @@ build_script:
     - if "%configuration%"=="Unicode Release" set scintilla_debug=
     - if "%platform%"=="ARM" set scintilla_arm=SCINTILLA_ARM_BUILD=1
     - if NOT "%platform%"=="ARM" set scintilla_arm=
-    - nmake NOBOOST=1 %scintilla_debug% %scintilla_arm% -f scintilla.mak
+    - if "%platform%"=="ARM" set boost_arch_subpath=BUILDTARGETPATH=architecture-arm\
+    - if "%platform%"=="x64" set boost_arch_subpath=BUILDTARGETPATH=address-model-64\
+    - if "%platform%'=="Win32" set boost_arch_subpath=BUILDTARGETPATH=
+    - nmake %scintilla_debug% %scintilla_arm% %boost_arch_subpath% -f scintilla.mak
     - cd c:\projects\notepad-plus-plus\PowerEditor\visual.net\
     - msbuild notepadPlus.vcxproj /p:configuration="%configuration%" /p:platform="%platform%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
