@@ -1,7 +1,6 @@
 version: 1.0.{build}
 image: Visual Studio 2015
 
-
 clone_depth: 1
 
 platform:
@@ -10,7 +9,33 @@ platform:
 configuration:
     - Unicode Debug
 
+environment:
+    BoostMajor: 1
+    BoostMinor: 58
+    BoostPatch: 0
+    BoostVerUnderscore: %BoostMajor%_%BoostMinor%_%BoostPatch%
+    BoostVerDot: %BoostMajor%.%BoostMinor%.%BoostPatch%
+    BoostBase: boost_%BoostVerUnderscore%
+    BoostArchive: %BoostBase%.7z
+    BoostUrl: https://sourceforge.net/projects/boost/files/boost/%BoostVerDot%/%BoostArchive%/download
+    NoCache: 1
+
+cache:
+    - c:\projects\deps\%BoostBase%\bin.v2 -> appveyor.yml
+    - c:\projects\deps\%BoostBase%\boost -> appveyor.yml
+
 install:
+    - if exist c:\projects\deps\%BoostBase%\bin.v2 if exist c:\projects\deps\%BoostBase%\boost set NoCache=0
+    - if %NoCache% equ 1 if exist c:\projects\deps\%BoostBase% rmdir /S /Q c:\projects\deps\%BoostBase%
+    - if %NoCache% equ 1 Start-FileDownload "%BoostUrl% -FileName "%TEMP%\%BoostArchive%"
+    - if %NoCache% equ 1 7z x -oc:\projects\deps "%TEMP%\%BoostArchive%"
+    - if %NoCache% equ 1 del "%TEMP%\%BoostArchive%"
+\   - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
+    - if %NoCache% equ 1 bootstrap
+    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=arm
+    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86
+    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=ia64
+    - if %NoCache% equ 1 (cd bin.v2 && del /S *.obj *.rsp)
     - if "%platform%"=="x64" set archi=amd64
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="ARM" set archi=x86_arm
