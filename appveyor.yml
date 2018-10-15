@@ -32,7 +32,7 @@ install:
     - if %NoCache% equ 1 del "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
     - if %NoCache% equ 1 bootstrap
-    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=arm
+    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=arm cxxflags=/D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86
     - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=ia64
     - if %NoCache% equ 1 (cd bin.v2 && del /S *.obj *.rsp)
