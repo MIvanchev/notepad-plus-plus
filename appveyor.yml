@@ -54,7 +54,7 @@ build_script:
     - if NOT "%platform%"=="ARM" set scintilla_arm=
     - if "%platform%"=="ARM" set boost_arch_subpath=BUILDTARGETPATH=architecture-arm\
     - if "%platform%"=="x64" set boost_arch_subpath=BUILDTARGETPATH=address-model-64\
-    - if "%platform%'=="Win32" set boost_arch_subpath=BUILDTARGETPATH=
+    - if "%platform%"=="Win32" set boost_arch_subpath=BUILDTARGETPATH=
     - nmake %scintilla_debug% %scintilla_arm% %boost_arch_subpath% -f scintilla.mak
     - cd c:\projects\notepad-plus-plus\PowerEditor\visual.net\
     - msbuild notepadPlus.vcxproj /p:configuration="%configuration%" /p:platform="%platform%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
