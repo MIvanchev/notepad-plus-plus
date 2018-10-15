@@ -13,11 +13,11 @@ environment:
     BoostMajor: 1
     BoostMinor: 58
     BoostPatch: 0
-    BoostVerUnderscore: %BoostMajor%_%BoostMinor%_%BoostPatch%
-    BoostVerDot: %BoostMajor%.%BoostMinor%.%BoostPatch%
-    BoostBase: boost_%BoostVerUnderscore%
-    BoostArchive: %BoostBase%.7z
-    BoostUrl: https://sourceforge.net/projects/boost/files/boost/%BoostVerDot%/%BoostArchive%/download
+    BoostVerUnderscore: $(BoostMajor)_$(BoostMinor)_$(BoostPatch)
+    BoostVerDot: $(BoostMajor).$(BoostMinor).$(BoostPatch)
+    BoostBase: boost_$(BoostVerUnderscore)
+    BoostArchive: $(BoostBase).7z
+    BoostUrl: https://sourceforge.net/projects/boost/files/boost/$(BoostVerDot)/$(BoostArchive)/download
     NoCache: 1
 
 cache:
