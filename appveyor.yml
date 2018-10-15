@@ -27,7 +27,7 @@ cache:
 install:
     - if exist c:\projects\deps\%BoostBase%\bin.v2 if exist c:\projects\deps\%BoostBase%\boost set NoCache=0
     - if %NoCache% equ 1 if exist c:\projects\deps\%BoostBase% rmdir /S /Q c:\projects\deps\%BoostBase%
-    - if %NoCache% equ 1 Start-FileDownload "%BoostUrl% -FileName "%TEMP%\%BoostArchive%"
+    - if %NoCache% equ 1 appveyor DownloadFile "%BoostUrl% -FileName "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 7z x -oc:\projects\deps "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 del "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
