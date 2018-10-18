@@ -6,7 +6,7 @@ clone_depth: 1
 
 platform:
     - ARM
-    - x86
+    - Win32
 
 configuration:
     - Unicode Debug
@@ -33,8 +33,8 @@ build_script:
 
 after_build:
     - cd c:\projects\notepad-plus-plus\
-    - ps: >-
-        $nppFileName = "Notepad++.$env:PLATFORM.$env:CONFIGURATION.exe";
+    - ps: |
+        $nppFileName = "Notepad++.$env:PLATFORM.$env:CONFIGURATION.exe"
         $pdbFileName = "npp.$env:PLATFORM.$env:CONFIGURATION.pdb"
 
         if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Unicode Release") {
