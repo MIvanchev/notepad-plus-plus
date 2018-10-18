@@ -206,16 +206,16 @@ HMODULE loadSciLexerDll()
 	// This is helpful for developers to skip signature checking
 	// while analyzing issue or modifying the lexer dll
 #ifndef _DEBUG
-	bool isOK = VerifySignedLibrary(sciLexerPath, NPP_COMPONENT_SIGNER_KEY_ID, NPP_COMPONENT_SIGNER_SUBJECT, NPP_COMPONENT_SIGNER_DISPLAY_NAME, false, false);
+	// bool isOK = VerifySignedLibrary(sciLexerPath, NPP_COMPONENT_SIGNER_KEY_ID, NPP_COMPONENT_SIGNER_SUBJECT, NPP_COMPONENT_SIGNER_DISPLAY_NAME, false, false);
 
-	if (!isOK)
-	{
-		::MessageBox(NULL,
-			TEXT("Authenticode check failed: signature or signing certificate are not recognized"),
-			TEXT("Library verification failed"),
-			MB_OK | MB_ICONERROR);
-		return nullptr;
-	}
+	// if (!isOK)
+	// {
+		// ::MessageBox(NULL,
+			// TEXT("Authenticode check failed: signature or signing certificate are not recognized"),
+			// TEXT("Library verification failed"),
+			// MB_OK | MB_ICONERROR);
+		// return nullptr;
+	// }
 #endif // !_DEBUG
 
 	return ::LoadLibrary(sciLexerPath.c_str());
