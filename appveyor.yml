@@ -22,7 +22,7 @@ environment:
     BoostBase: boost_$(BoostVerUnderscore)
     BoostArchive: $(BoostBase).7z
     BoostUrl: https://sourceforge.net/projects/boost/files/boost/$(BoostVerDot)/$(BoostArchive)/download
-    BoostDir: %DepsDir%\%BoostBase%
+    BoostDir: $(DepsDir)\$(BoostBase)
     B2: b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi
     NoCache: 1
 
