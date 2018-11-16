@@ -5,6 +5,7 @@ clone_depth: 1
 
 platform:
     - ARM
+    - x64
     - Win32
 
 configuration:
@@ -12,6 +13,7 @@ configuration:
     - Unicode Release
 
 environment:
+    DepsDir: c:\projects\deps
     BoostMajor: 1
     BoostMinor: 58
     BoostPatch: 0
@@ -20,26 +22,28 @@ environment:
     BoostBase: boost_$(BoostVerUnderscore)
     BoostArchive: $(BoostBase).7z
     BoostUrl: https://sourceforge.net/projects/boost/files/boost/$(BoostVerDot)/$(BoostArchive)/download
+    BoostDir: %DepsDir%\%BoostBase%
+    B2: b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi
     NoCache: 1
 
 cache:
-    - c:\projects\deps\%BoostBase%\bin.v2 -> appveyor.yml
-    - c:\projects\deps\%BoostBase%\boost -> appveyor.yml
+    - %BoostDir%\bin.v2 -> appveyor.yml
+    - %BoostDir%\boost -> appveyor.yml
 
 install:
-    - if exist c:\projects\deps\%BoostBase%\bin.v2 if exist c:\projects\deps\%BoostBase%\boost set NoCache=0
-    - if %NoCache% equ 1 if exist c:\projects\deps\%BoostBase% rmdir /S /Q c:\projects\deps\%BoostBase%
+    - if exist %BoostDir%\bin.v2 if exist %BoostDir%\boost set NoCache=0
+    - if %NoCache% equ 1 if exist %BoostDir% rmdir /S /Q %BoostDir%
     - if %NoCache% equ 1 appveyor DownloadFile "%BoostUrl%" -FileName "%TEMP%\%BoostArchive%"
-    - if %NoCache% equ 1 7z x -oc:\projects\deps "%TEMP%\%BoostArchive%"
+    - if %NoCache% equ 1 7z x -o%DepsDir% "%TEMP%\%BoostArchive%"
     - if %NoCache% equ 1 del "%TEMP%\%BoostArchive%"
-    - if %NoCache% equ 1 cd c:\projects\deps\%BoostBase%
+    - if %NoCache% equ 1 cd %BoostDir%
     - if %NoCache% equ 1 bootstrap
-    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=arm cxxflags=/D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1
-    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86 address-model=32
-    - if %NoCache% equ 1 b2 --with-regex toolset=msvc-14.0 --build-type=complete link=static runtime-link=static threading=multi architecture=x86 address-model=64
+    - if %NoCache% equ 1 if "%platform%" == "ARM" %B2% architecture=arm cxxflags=/D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1
+    - if %NoCache% equ 1 if "%platform%" == "x64" %B2% architecture=x86 address-model=64
+    - if %NoCache% equ 1 if "%platform%" == "Win32" %B2% architecture=x86 address-model=32
     - if %NoCache% equ 1 (cd bin.v2 && del /S *.obj *.rsp)
-    - echo BOOSTPATH=c:\projects\deps\%BoostBase% > c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
-    - echo BOOSTLIBPATH=c:\projects\deps\%BoostBase%\bin.v2\libs\regex\build\msvc-14.0 >> c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
+    - echo BOOSTPATH=%BoostDir% > c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
+    - echo BOOSTLIBPATH=%BoostDir%\bin.v2\libs\regex\build\msvc-14.0 >> c:\projects\notepad-plus-plus\scintilla\boostregex\boostpath.mak
     - if "%platform%"=="x64" set archi=amd64
     - if "%platform%"=="Win32" set archi=x86
     - if "%platform%"=="ARM" set archi=x86_arm
@@ -69,7 +73,6 @@ after_build:
 
         if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Unicode Release") {
             Push-AppveyorArtifact "PowerEditor\bin64\Notepad++.exe" -FileName "$nppFileName"
-            Push-AppveyorArtifact "PowerEditor\bin\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Unicode Debug") {
@@ -78,7 +81,6 @@ after_build:
 
         if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Unicode Release") {
             Push-AppveyorArtifact "PowerEditor\bin\Notepad++.exe" -FileName "$nppFileName"
-            Push-AppveyorArtifact "PowerEditor\bin\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Unicode Debug") {
@@ -87,7 +89,6 @@ after_build:
 
         if ($env:PLATFORM -eq "ARM" -and $env:CONFIGURATION -eq "Unicode Release") {
             Push-AppveyorArtifact "PowerEditor\bin-arm\Notepad++.exe" -FileName "$nppFileName"
-            Push-AppveyorArtifact "PowerEditor\bin-arm\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "ARM" -and $env:CONFIGURATION -eq "Unicode Debug") {
