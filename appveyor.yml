@@ -27,8 +27,8 @@ environment:
     NoCache: 1
 
 cache:
-    - %BoostDir%\bin.v2 -> appveyor.yml
-    - %BoostDir%\boost -> appveyor.yml
+    - $(BoostDir)\bin.v2 -> appveyor.yml
+    - $(BoostDir)\boost -> appveyor.yml
 
 install:
     - if exist %BoostDir%\bin.v2 if exist %BoostDir%\boost set NoCache=0
