@@ -5,9 +5,11 @@ clone_depth: 1
 
 platform:
     - ARM
+    - Win32
 
 configuration:
     - Unicode Debug
+    - Unicode Release
 
 environment:
     BoostMajor: 1
@@ -61,11 +63,13 @@ build_script:
 
 after_build:
     - cd c:\projects\notepad-plus-plus\
-    - ps: >-
+    - ps: |
         $nppFileName = "Notepad++.$env:PLATFORM.$env:CONFIGURATION.exe"
+        $pdbFileName = "npp.$env:PLATFORM.$env:CONFIGURATION.pdb"
 
         if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Unicode Release") {
             Push-AppveyorArtifact "PowerEditor\bin64\Notepad++.exe" -FileName "$nppFileName"
+            Push-AppveyorArtifact "PowerEditor\bin\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Unicode Debug") {
@@ -74,10 +78,16 @@ after_build:
 
         if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Unicode Release") {
             Push-AppveyorArtifact "PowerEditor\bin\Notepad++.exe" -FileName "$nppFileName"
+            Push-AppveyorArtifact "PowerEditor\bin\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "Win32" -and $env:CONFIGURATION -eq "Unicode Debug") {
             Push-AppveyorArtifact "PowerEditor\visual.net\Unicode Debug\Notepad++.exe" -FileName "$nppFileName"
+        }
+
+        if ($env:PLATFORM -eq "ARM" -and $env:CONFIGURATION -eq "Unicode Release") {
+            Push-AppveyorArtifact "PowerEditor\bin-arm\Notepad++.exe" -FileName "$nppFileName"
+            Push-AppveyorArtifact "PowerEditor\bin-arm\npp.pdb" -FileName "$pdbFileName"
         }
 
         if ($env:PLATFORM -eq "ARM" -and $env:CONFIGURATION -eq "Unicode Debug") {
