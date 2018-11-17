@@ -54,14 +54,12 @@ build:
 
 build_script:
     - cd c:\projects\notepad-plus-plus\scintilla\win32
-    - if "%configuration%"=="Unicode Debug" set scintilla_debug=DEBUG=1
-    - if "%configuration%"=="Unicode Release" set scintilla_debug=
-    - if "%platform%"=="ARM" set scintilla_arm=SCINTILLA_ARM_BUILD=1
-    - if NOT "%platform%"=="ARM" set scintilla_arm=
-    - if "%platform%"=="ARM" set boost_arch_subpath=BUILDTARGETPATH=architecture-arm\
-    - if "%platform%"=="x64" set boost_arch_subpath=BUILDTARGETPATH=address-model-64\
-    - if "%platform%"=="Win32" set boost_arch_subpath=BUILDTARGETPATH=
-    - nmake %scintilla_debug% %scintilla_arm% %boost_arch_subpath% -f scintilla.mak
+    - set NMAKE_ARGS=
+    - if "%configuration%"=="Unicode Debug" set NMAKE_ARGS=DEBUG=1
+    - if "%platform%"=="ARM" set NMAKE_ARGS=%NMAKE_ARGS% SCINTILLA_ARM_BUILD=1
+    - if "%platform%"=="ARM" set NMAKE_ARGS=%NMAKE_ARGS% BUILDTARGETPATH=architecture-arm\
+    - if "%platform%"=="x64" set NMAKE_ARGS=%NMAKE_ARGS% BUILDTARGETPATH=address-model-64\
+    - nmake %NMAKE_ARGS% -f scintilla.mak
     - cd c:\projects\notepad-plus-plus\PowerEditor\visual.net\
     - msbuild notepadPlus.vcxproj /p:configuration="%configuration%" /p:platform="%platform%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
