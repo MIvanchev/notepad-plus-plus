@@ -4,13 +4,10 @@ image: Visual Studio 2015
 clone_depth: 1
 
 platform:
-    - ARM
     - x64
-    - Win32
 
 configuration:
     - Unicode Debug
-    - Unicode Release
 
 environment:
     DepsDir: c:\projects\deps
