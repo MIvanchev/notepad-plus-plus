@@ -4,10 +4,13 @@ image: Visual Studio 2015
 clone_depth: 1
 
 platform:
+    - ARM
     - x64
+    - Win32
 
 configuration:
     - Unicode Debug
+    - Unicode Release
 
 environment:
     DepsDir: c:\projects\deps
@@ -55,7 +58,7 @@ build_script:
     - if "%configuration%"=="Unicode Debug" set NMAKE_ARGS=%NMAKE_ARGS% DEBUG=1
     - if "%platform%"=="ARM" set NMAKE_ARGS=%NMAKE_ARGS% SCINTILLA_ARM_BUILD=1
     - if "%platform%"=="ARM" set NMAKE_ARGS=%NMAKE_ARGS% BUILDTARGETPATH=architecture-arm\
-    - if "%platform%"=="x64" set NMAKE_ARGS=%NMAKE_ARGS% BUILDTARGETPATH=address-model-64\
+    - if "%platform%"=="X64" set NMAKE_ARGS=%NMAKE_ARGS% BUILDTARGETPATH=address-model-64\
     - nmake %NMAKE_ARGS:~5% -f scintilla.mak
     - cd c:\projects\notepad-plus-plus\PowerEditor\visual.net\
     - msbuild notepadPlus.vcxproj /p:configuration="%configuration%" /p:platform="%platform%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
