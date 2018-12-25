@@ -1956,7 +1956,7 @@ void Notepad_plus::command(int id)
 				characterNumber += TEXT("\r");
 				characterNumber += TEXT("\r");
 			}
-			const TCHAR *nbCharLabel = TEXT("Characters (without blanks): ");
+			const TCHAR *nbCharLabel = TEXT("Characters (without line endings): ");
 			const TCHAR *nbWordLabel = TEXT("Words: ");
 			const TCHAR *nbLineLabel = TEXT("Lines: ");
 			const TCHAR *nbByteLabel = TEXT("Current document length: ");
@@ -2429,23 +2429,21 @@ void Notepad_plus::command(int id)
 
 		case IDM_SETTING_IMPORTPLUGIN :
         {
-            // get plugin source path
+			// Copy plugins to Plugins Home
             const TCHAR *extFilterName = TEXT("Notepad++ plugin");
             const TCHAR *extFilter = TEXT(".dll");
-            const TCHAR *destDir = TEXT("plugins");
+            vector<generic_string> copiedFiles = addNppPlugins(extFilterName, extFilter);
 
-            vector<generic_string> copiedFiles = addNppComponents(destDir, extFilterName, extFilter);
-
-            // load plugin
-            for (size_t i = 0, len = copiedFiles.size() ; i < len ; ++i)
-            {
-                int index = _pluginsManager.loadPlugin(copiedFiles[i].c_str());
-                if (_pluginsManager.getMenuHandle())
-                    _pluginsManager.addInMenuFromPMIndex(index);
-            }
-            if (!_pluginsManager.getMenuHandle())
-                _pluginsManager.setMenu(_mainMenuHandle, NULL);
-            ::DrawMenuBar(_pPublicInterface->getHSelf());
+            // Tell users to restart Notepad++ to load plugin
+			if (copiedFiles.size())
+			{
+				NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance())->getNativeLangSpeaker();
+				pNativeSpeaker->messageBox("NeedToRestartToLoadPlugins",
+					NULL,
+					TEXT("You have to restart Notepad++ to load plugins you installed."),
+					TEXT("Notepad++ need to be relaunched"),
+					MB_OK | MB_APPLMODAL);
+			}
             break;
         }
 
@@ -2482,7 +2480,7 @@ void Notepad_plus::command(int id)
 			_pluginsAdminDlg.doDialog(_nativeLangSpeaker.isRTL());
 			if (isFirstTime)
 			{
-				_nativeLangSpeaker.changeConfigLang(_pluginsAdminDlg.getHSelf());
+				_nativeLangSpeaker.changePluginsAdminDlgLang(_pluginsAdminDlg);
 				_pluginsAdminDlg.updateListAndLoadFromJson();
 			}
 			break;
@@ -2574,7 +2572,7 @@ void Notepad_plus::command(int id)
 			bool isFirstTime = !_md5FromFilesDlg.isCreated();
 			_md5FromFilesDlg.doDialog(_nativeLangSpeaker.isRTL());
 			if (isFirstTime)
-				_nativeLangSpeaker.changeDlgLang(_md5FromFilesDlg.getHSelf(), "MD5FromFilesDlg");
+				_nativeLangSpeaker.changeDlgLang(_md5FromFilesDlg.getHSelf(), "HashFromFilesDlg");
 		}
 		break;
 
@@ -2598,6 +2596,53 @@ void Notepad_plus::command(int id)
 					str2Clipboard(md5ResultW, _pPublicInterface->getHSelf());
 					
 					delete [] selectedStr;
+				}
+			}
+		}
+		break;
+
+		case IDM_TOOL_SHA256_GENERATE:
+		{
+			bool isFirstTime = !_sha2FromTextDlg.isCreated();
+			_sha2FromTextDlg.doDialog(_nativeLangSpeaker.isRTL());
+			if (isFirstTime)
+				_nativeLangSpeaker.changeDlgLang(_sha2FromTextDlg.getHSelf(), "SHA256FromTextDlg");
+		}
+		break;
+
+		case IDM_TOOL_SHA256_GENERATEFROMFILE:
+		{
+			bool isFirstTime = !_sha2FromFilesDlg.isCreated();
+			_sha2FromFilesDlg.doDialog(_nativeLangSpeaker.isRTL());
+			if (isFirstTime)
+				_nativeLangSpeaker.changeDlgLang(_sha2FromFilesDlg.getHSelf(), "SHA256FromFilesDlg");
+		}
+		break;
+
+		case IDM_TOOL_SHA256_GENERATEINTOCLIPBOARD:
+		{
+			if (_pEditView->execute(SCI_GETSELECTIONS) == 1)
+			{
+				size_t selectionStart = _pEditView->execute(SCI_GETSELECTIONSTART);
+				size_t selectionEnd = _pEditView->execute(SCI_GETSELECTIONEND);
+
+				int32_t strLen = static_cast<int32_t>(selectionEnd - selectionStart);
+				if (strLen)
+				{
+					int strSize = strLen + 1;
+					char *selectedStr = new char[strSize];
+					_pEditView->execute(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>(selectedStr));
+
+					uint8_t sha2hash[32];
+					calc_sha_256(sha2hash, reinterpret_cast<const uint8_t*>(selectedStr), strlen(selectedStr));
+
+					wchar_t sha2hashStr[65] = { '\0' };
+					for (size_t i = 0; i < 32; i++)
+						wsprintf(sha2hashStr + i * 2, TEXT("%02x"), sha2hash[i]);
+
+					str2Clipboard(sha2hashStr, _pPublicInterface->getHSelf());
+
+					delete[] selectedStr;
 				}
 			}
 		}

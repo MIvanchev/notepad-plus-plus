@@ -623,10 +623,18 @@ LRESULT Notepad_plus::init(HWND hwnd)
     _aboutDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_debugInfoDlg.init(_pPublicInterface->getHinst(), hwnd, _isAdministrator, _pluginsManager.getLoadedPluginNames());
 	_runDlg.init(_pPublicInterface->getHinst(), hwnd);
-	_md5FromFilesDlg.init(_pPublicInterface->getHinst(), hwnd);
-	_md5FromTextDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_runMacroDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_documentPeeker.init(_pPublicInterface->getHinst(), hwnd);
+
+	_md5FromFilesDlg.init(_pPublicInterface->getHinst(), hwnd);
+	_md5FromFilesDlg.setHashType(hash_md5);
+	_md5FromTextDlg.init(_pPublicInterface->getHinst(), hwnd);
+	_md5FromTextDlg.setHashType(hash_md5);
+	_sha2FromFilesDlg.init(_pPublicInterface->getHinst(), hwnd);
+	_sha2FromFilesDlg.setHashType(hash_sha256);
+	_sha2FromTextDlg.init(_pPublicInterface->getHinst(), hwnd);
+	_sha2FromTextDlg.setHashType(hash_sha256);
+
 
     //--User Define Dialog Section--//
 	int uddStatus = nppGUI._userDefineDlgStatus;
@@ -5447,6 +5455,52 @@ vector<generic_string> Notepad_plus::addNppComponents(const TCHAR *destDir, cons
     return copiedFiles;
 }
 
+vector<generic_string> Notepad_plus::addNppPlugins(const TCHAR *extFilterName, const TCHAR *extFilter)
+{
+	FileDialog fDlg(_pPublicInterface->getHSelf(), _pPublicInterface->getHinst());
+    fDlg.setExtFilter(extFilterName, extFilter, NULL);
+
+    vector<generic_string> copiedFiles;
+
+    if (stringVector *pfns = fDlg.doOpenMultiFilesDlg())
+    {
+        // Get plugins dir
+		generic_string destDirName = (NppParameters::getInstance())->getPluginRootDir();
+
+        if (!::PathFileExists(destDirName.c_str()))
+        {
+            ::CreateDirectory(destDirName.c_str(), NULL);
+        }
+
+        size_t sz = pfns->size();
+        for (size_t i = 0 ; i < sz ; ++i)
+        {
+            if (::PathFileExists(pfns->at(i).c_str()))
+            {
+                // copy to plugins directory
+                generic_string destName = destDirName;
+				
+				generic_string nameExt = ::PathFindFileName(pfns->at(i).c_str());
+				auto pos = nameExt.find_last_of(TEXT("."));
+				if (pos == generic_string::npos)
+					continue;
+
+				generic_string name = nameExt.substr(0, pos);
+				PathAppend(destName, name);
+				if (!::PathFileExists(destName.c_str()))
+				{
+					::CreateDirectory(destName.c_str(), NULL);
+				}
+				PathAppend(destName, nameExt);
+
+                if (::CopyFile(pfns->at(i).c_str(), destName.c_str(), FALSE))
+                    copiedFiles.push_back(destName.c_str());
+            }
+        }
+    }
+    return copiedFiles;
+}
+
 void Notepad_plus::setWorkingDir(const TCHAR *dir)
 {
 	NppParameters * params = NppParameters::getInstance();
@@ -5641,7 +5695,7 @@ bool Notepad_plus::reloadLang()
 
 	if (_md5FromFilesDlg.isCreated())
 	{
-		_nativeLangSpeaker.changeDlgLang(_md5FromFilesDlg.getHSelf(), "MD5FromFilesDlg");
+		_nativeLangSpeaker.changeDlgLang(_md5FromFilesDlg.getHSelf(), "HashFromFilesDlg");
 	}
 
 	if (_md5FromTextDlg.isCreated())
@@ -5662,6 +5716,11 @@ bool Notepad_plus::reloadLang()
 	if (_colEditorDlg.isCreated())
 	{
         _nativeLangSpeaker.changeDlgLang(_colEditorDlg.getHSelf(), "ColumnEditor");
+	}
+
+	if (_pluginsAdminDlg.isCreated())
+	{
+		_nativeLangSpeaker.changePluginsAdminDlgLang(_pluginsAdminDlg);
 	}
 
 	UserDefineDialog *udd = _pEditView->getUserDefineDlg();
