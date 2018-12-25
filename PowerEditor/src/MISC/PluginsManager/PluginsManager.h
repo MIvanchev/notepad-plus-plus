@@ -99,8 +99,7 @@ public:
 		_nppData = nppData;
 	}
 
-    int loadPlugin(const TCHAR *pluginFilePath, std::vector<generic_string> & dll2Remove);
-	bool loadPlugins(const TCHAR *dir = NULL);
+    int loadPlugin(const TCHAR *pluginFilePath);
 	bool loadPluginsV2(const TCHAR *dir = NULL);
 
     bool unloadPlugin(int index, HWND nppHandle);
