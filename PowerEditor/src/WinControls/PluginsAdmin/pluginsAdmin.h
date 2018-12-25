@@ -51,7 +51,7 @@ struct Version
 	generic_string toString();
 	bool isNumber(const generic_string& s) const {
 		return !s.empty() && 
-			find_if(s.begin(), s.end(), [](char c) { return !isdigit(c); }) == s.end();
+			find_if(s.begin(), s.end(), [](_TCHAR c) { return !_istdigit(c); }) == s.end();
 	};
 
 	int compareTo(const Version& v2c) const;
@@ -111,6 +111,8 @@ struct NppCurrentStatus
 	bool shouldLaunchInAdmMode() { return _isInProgramFiles; };
 };
 
+enum COLUMN_TYPE { COLUMN_PLUGIN, COLUMN_VERSION };
+
 class PluginViewList
 {
 public:
@@ -144,11 +146,15 @@ public:
 	bool hideFromPluginInfoPtr(PluginUpdateInfo* pluginInfo2hide);
 	bool restore(const generic_string& folderName);
 	bool removeFromPluginInfoPtr(PluginUpdateInfo* pluginInfo2hide);
+	void changeColumnName(COLUMN_TYPE index, const TCHAR *name2change);
 
 private:
 	std::vector<PluginUpdateInfo*> _list;
 	ListView _ui;
 };
+
+enum LIST_TYPE { AVAILABLE_LIST, UPDATES_LIST, INSTALLED_LIST };
+
 
 class PluginsAdminDlg final : public StaticDialog
 {
@@ -182,11 +188,13 @@ public :
 
 	bool updateListAndLoadFromJson();
 	void setAdminMode(bool isAdm) { _nppCurrentStatus._isAdminMode = isAdm; };
-	generic_string getPluginConfigPath() const;
 
 	bool installPlugins();
 	bool updatePlugins();
 	bool removePlugins();
+
+	void changeTabName(LIST_TYPE index, const TCHAR *name2change);
+	void changeColumnName(COLUMN_TYPE index, const TCHAR *name2change);
 
 protected:
 	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);

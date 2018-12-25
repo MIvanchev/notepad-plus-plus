@@ -118,6 +118,7 @@ InstType "Minimalist"
 
 Var diffArchDir2Remove
 Var noUpdater
+
 Function .onInit
 
 	${GetParameters} $R0 
@@ -136,6 +137,7 @@ updaterDone:
 		!insertmacro UnSelectSection ${PluginsAdmin}
 		SectionSetText ${PluginsAdmin} ""
 	${EndIf}
+
 
 	${If} ${SectionIsSelected} ${PluginsAdmin}
 		!insertmacro SetSectionFlag ${AutoUpdater} ${SF_RO}
@@ -204,9 +206,9 @@ Section -"Notepad++" mainSection
 	Call removeUnstablePlugins
 
 	Call removeOldContextMenu
-	
+
 	Call shortcutLinkManagement
-	
+
 SectionEnd
 
 ; Please **DONOT** move this function (SetRoughEstimation) anywhere else

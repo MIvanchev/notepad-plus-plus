@@ -1012,38 +1012,51 @@ bool NppParameters::load()
 		}
 	}
 
+	generic_string nppPluginRootParent;
 	if (_isLocal)
 	{
-		_userPath = _nppPath;
+		_userPath = nppPluginRootParent = _nppPath;
 
 		_pluginRootDir = _nppPath;
 		PathAppend(_pluginRootDir, TEXT("plugins"));
+
+		_userPluginConfDir = _pluginRootDir;
+		PathAppend(_userPluginConfDir, TEXT("Config"));
 	}
 	else
 	{
 		_userPath = getSpecialFolderLocation(CSIDL_APPDATA);
 
 		PathAppend(_userPath, TEXT("Notepad++"));
-		_appdataNppDir = _userPath;
-
-		// Plugin System V1
 		if (!PathFileExists(_userPath.c_str()))
 			::CreateDirectory(_userPath.c_str(), NULL);
 
-		// Plugin System V2
-		_localAppdataNppDir = getSpecialFolderLocation(CSIDL_LOCAL_APPDATA);
-		PathAppend(_localAppdataNppDir, TEXT("Notepad++"));
-		if (!PathFileExists(_localAppdataNppDir.c_str()))
-			::CreateDirectory(_localAppdataNppDir.c_str(), NULL);
+		_appdataNppDir = _userPluginConfDir = _userPath;
+		PathAppend(_userPluginConfDir, TEXT("plugins"));
+		if (!PathFileExists(_userPluginConfDir.c_str()))
+			::CreateDirectory(_userPluginConfDir.c_str(), NULL);
+		PathAppend(_userPluginConfDir, TEXT("Config"));
+		if (!PathFileExists(_userPluginConfDir.c_str()))
+			::CreateDirectory(_userPluginConfDir.c_str(), NULL);
 
-		_pluginRootDir = _localAppdataNppDir;
+
+		_pluginRootDir = getSpecialFolderLocation(CSIDL_COMMON_APPDATA);
+		PathAppend(_pluginRootDir, TEXT("Notepad++"));
+		nppPluginRootParent = _pluginRootDir;
+
 		PathAppend(_pluginRootDir, TEXT("plugins"));
 
-		if (!PathFileExists(_pluginRootDir.c_str()))
-			::CreateDirectory(_pluginRootDir.c_str(), NULL);
+		// For PluginAdmin to launch the wingup with UAC
+		setElevationRequired(true);
 	}
-	
 
+	_pluginConfDir = _pluginRootDir;
+	PathAppend(_pluginConfDir, TEXT("Config"));
+
+	if (!PathFileExists(nppPluginRootParent.c_str()))
+		::CreateDirectory(nppPluginRootParent.c_str(), NULL);
+	if (!PathFileExists(_pluginRootDir.c_str()))
+		::CreateDirectory(_pluginRootDir.c_str(), NULL);
 
 	_sessionPath = _userPath; // Session stock the absolute file path, it should never be on cloud
 

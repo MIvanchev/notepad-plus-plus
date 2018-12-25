@@ -427,7 +427,7 @@ PluginsAdminDlg::PluginsAdminDlg()
 	PathAppend(_updaterFullPath, TEXT("gup.exe"));
 
 	// get plugin-list path
-	_pluginListFullPath = getPluginConfigPath();
+	_pluginListFullPath = pNppParameters->getPluginConfDir();
 
 #ifdef DEBUG // if not debug, then it's release
 	// load from nppPluginList.json instead of nppPluginList.dll
@@ -435,32 +435,6 @@ PluginsAdminDlg::PluginsAdminDlg()
 #else //RELEASE
 	PathAppend(_pluginListFullPath, TEXT("nppPluginList.dll"));
 #endif
-	;
-}
-
-generic_string PluginsAdminDlg::getPluginConfigPath() const
-{
-	NppParameters *pNppParameters = NppParameters::getInstance();
-	generic_string nppPluginsConfDir;
-
-	if (pNppParameters->isLocal())
-	{
-		nppPluginsConfDir = pNppParameters->getNppPath();
-	}
-	else
-	{
-		nppPluginsConfDir = pNppParameters->getAppDataNppDir();
-	}
-
-	PathAppend(nppPluginsConfDir, TEXT("plugins"));
-	PathAppend(nppPluginsConfDir, TEXT("Config"));
-
-	if (!::PathFileExists(nppPluginsConfDir.c_str()))
-	{
-		::CreateDirectory(nppPluginsConfDir.c_str(), NULL);
-	}
-
-	return nppPluginsConfDir;
 }
 
 bool PluginsAdminDlg::exitToInstallRemovePlugins(Operation op, const vector<PluginUpdateInfo*>& puis)
@@ -576,6 +550,30 @@ bool PluginsAdminDlg::removePlugins()
 	return exitToInstallRemovePlugins(pa_remove, puis);
 }
 
+void PluginsAdminDlg::changeTabName(LIST_TYPE index, const TCHAR *name2change)
+{
+	TCITEM tie;
+	tie.mask = TCIF_TEXT;
+	tie.pszText = (TCHAR *)name2change;
+	TabCtrl_SetItem(_tab.getHSelf(), index, &tie);
+
+	TCHAR label[MAX_PATH];
+	_tab.getCurrentTitle(label, MAX_PATH);
+	::SetWindowText(_hSelf, label);
+}
+
+void PluginsAdminDlg::changeColumnName(COLUMN_TYPE index, const TCHAR *name2change)
+{
+	_availableList.changeColumnName(index, name2change);
+	_updateList.changeColumnName(index, name2change);
+	_installedList.changeColumnName(index, name2change);
+}
+
+void PluginViewList::changeColumnName(COLUMN_TYPE index, const TCHAR *name2change)
+{
+	_ui.setColumnText(index, name2change);
+}
+
 bool PluginViewList::removeFromFolderName(const generic_string& folderName)
 {
 
@@ -685,12 +683,18 @@ typedef const char * (__cdecl * PFUNCGETPLUGINLIST)();
 
 bool PluginsAdminDlg::isValide()
 {
+	// GUP.exe doesn't work under XP
+	winVer winVersion = (NppParameters::getInstance())->getWinVersion();
+	if (winVersion <= WV_XP)
+	{
+		return false;
+	}
+
 	if (!::PathFileExists(_pluginListFullPath.c_str()))
 	{
 		return false;
 	}
 
-	generic_string gupPath;
 	if (!::PathFileExists(_updaterFullPath.c_str()))
 	{
 		return false;
@@ -1073,7 +1077,6 @@ INT_PTR CALLBACK PluginsAdminDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 	{
         case WM_INITDIALOG :
 		{
-
 			return TRUE;
 		}
 
